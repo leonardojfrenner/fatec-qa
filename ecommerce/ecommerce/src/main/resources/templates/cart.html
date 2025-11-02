@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho de Compras - E-commerce</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            color: #555;
+            margin: 20px 0 15px 0;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button.btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        button.btn-secondary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .items-list {
+            margin-top: 15px;
+        }
+
+        .item-card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-info strong {
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .total-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .total-section h3 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .total-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .voucher-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 1.2em;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 Carrinho de Compras</h1>
+
+        <!-- Seção de Adicionar Item -->
+        <div class="section">
+            <h2>Adicionar Item ao Carrinho</h2>
+            <form th:action="@{/cart/add}" method="post" th:object="${cartItem}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="preco">Preço (R$)</label>
+                        <input type="number" id="preco" th:field="*{preco}" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantidade">Quantidade</label>
+                        <input type="number" id="quantidade" th:field="*{quantidade}" min="1" required>
+                    </div>
+                </div>
+                <button type="submit">➕ Adicionar Item</button>
+            </form>
+        </div>
+
+        <!-- Lista de Itens -->
+        <div class="section">
+            <h2>Itens no Carrinho</h2>
+            <div th:if="${items != null and !items.empty}" class="items-list">
+                <div th:each="item, iterStat : ${items}" class="item-card">
+                    <div class="item-info">
+                        <strong>Item #<span th:text="${iterStat.index + 1}"></span></strong>
+                        <div>Preço: R$ <span th:text="${#numbers.formatDecimal(item.preco, 0, 2)}"></span></div>
+                        <div>Quantidade: <span th:text="${item.quantidade}"></span></div>
+                        <div><strong>Subtotal: R$ <span th:text="${#numbers.formatDecimal(item.preco * item.quantidade, 0, 2)}"></span></strong></div>
+                    </div>
+                    <div class="item-actions">
+                        <form th:action="@{/cart/remove}" method="post" style="display: inline;">
+                            <input type="hidden" name="index" th:value="${iterStat.index}">
+                            <button type="submit" class="btn-danger btn-small">🗑️ Remover</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${items == null or items.empty}" class="empty-cart">
+                <p>Seu carrinho está vazio</p>
+            </div>
+            <div th:if="${items != null and !items.empty}">
+                <form th:action="@{/cart/clear}" method="post">
+                    <button type="submit" class="btn-danger">🗑️ Limpar Carrinho</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Seção de Voucher -->
+        <div class="section">
+            <h2>Aplicar Voucher de Desconto</h2>
+            <form th:action="@{/cart/calculate}" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="voucherType">Tipo de Voucher</label>
+                        <select id="voucherType" name="type" required>
+                            <option value="">Selecione...</option>
+                            <option value="PERCENTAGE">Percentual (%)</option>
+                            <option value="FIXED_AMOUNT">Valor Fixo (R$)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="voucherValue">Valor do Desconto</label>
+                        <input type="number" id="voucherValue" name="value" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <button type="submit">💰 Aplicar Desconto</button>
+            </form>
+            
+            <div th:if="${appliedVoucher != null}" class="voucher-info">
+                <strong>Voucher Aplicado:</strong><br>
+                <span th:if="${appliedVoucher.type.name() == 'PERCENTAGE'}">
+                    Desconto de <span th:text="${appliedVoucher.value}"></span>%
+                </span>
+                <span th:if="${appliedVoucher.type.name() == 'FIXED_AMOUNT'}">
+                    Desconto de R$ <span th:text="${#numbers.formatDecimal(appliedVoucher.value, 0, 2)}"></span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Total -->
+        <div class="total-section">
+            <h3>Total do Carrinho</h3>
+            <div class="total-amount">R$ <span th:text="${#numbers.formatDecimal(total, 0, 2)}">0,00</span></div>
+        </div>
+    </div>
+</body>
+</html>
+
