@@ -178,6 +178,24 @@ class VoucherValidatorTest {
             "Percentual válido (" + value + "%) deve retornar true");
     }
 
+    @Test
+    void testHasValidPercentageValue_ComValueExatamente100_DeveRetornarTrue() {
+        // Teste específico para cobrir branch: value <= 100 quando value == 100
+        Voucher voucher = new Voucher(Voucher.Type.PERCENTAGE, 100.0);
+        
+        assertTrue(validator.hasValidPercentageValue(voucher), 
+            "Percentual exatamente 100% deve retornar true");
+    }
+
+    @Test
+    void testHasValidPercentageValue_ComValueExatamente0_DeveRetornarTrue() {
+        // Teste específico para cobrir branch: value >= 0 quando value == 0
+        Voucher voucher = new Voucher(Voucher.Type.PERCENTAGE, 0.0);
+        
+        assertTrue(validator.hasValidPercentageValue(voucher), 
+            "Percentual exatamente 0% deve retornar true");
+    }
+
     @ParameterizedTest
     @ValueSource(doubles = {-10.0, -1.0, 100.01, 101.0, 150.0, 200.0})
     void testHasValidPercentageValue_ComPercentualInvalido_DeveRetornarFalse(double value) {
@@ -239,6 +257,30 @@ class VoucherValidatorTest {
         voucher.setValue(50.0);
         
         assertFalse(validator.hasPositiveFixedAmount(voucher), "Tipo nulo deve retornar false");
+    }
+
+    @Test
+    void testHasPositiveFixedAmount_ComValorZero_DeveRetornarFalse() {
+        // Teste específico para cobrir branch: value > 0 quando value == 0
+        Voucher voucher = new Voucher(Voucher.Type.FIXED_AMOUNT, 0.0);
+        
+        assertFalse(validator.hasPositiveFixedAmount(voucher), 
+            "Valor fixo zero deve retornar false");
+    }
+
+    @Test
+    void testHasValidType_ComVoucherNull_DeveRetornarFalse() {
+        // Teste específico para branch: voucher != null quando voucher == null
+        assertFalse(validator.hasValidType(null), "Voucher nulo deve retornar false");
+    }
+
+    @Test
+    void testHasValidType_ComTipoNull_DeveRetornarFalse() {
+        // Teste específico para branch: voucher.getType() != null quando é null
+        Voucher voucher = new Voucher();
+        voucher.setType(null);
+        
+        assertFalse(validator.hasValidType(voucher), "Tipo nulo deve retornar false");
     }
 
     // ========== Testes para canBeApplied ==========

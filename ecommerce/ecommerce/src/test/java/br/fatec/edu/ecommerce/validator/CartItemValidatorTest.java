@@ -98,6 +98,16 @@ class CartItemValidatorTest {
         assertFalse(validator.hasValidPrice(item), "Preço inválido (" + preco + ") deve retornar false");
     }
 
+    @Test
+    void testHasValidPrice_ComPrecoNullEItemNaoNulo_DeveRetornarFalse() {
+        // Teste específico para branch: preco != null quando preco == null
+        CartItem item = new CartItem();
+        item.setPreco(null);
+        item.setQuantidade(3);
+        
+        assertFalse(validator.hasValidPrice(item), "Preço nulo deve retornar false");
+    }
+
     // ========== Testes para hasValidQuantity ==========
 
     @Test
@@ -126,6 +136,16 @@ class CartItemValidatorTest {
         CartItem item = new CartItem(10.0, quantidade);
         
         assertFalse(validator.hasValidQuantity(item), "Quantidade inválida (" + quantidade + ") deve retornar false");
+    }
+
+    @Test
+    void testHasValidQuantity_ComQuantidadeNullEItemNaoNulo_DeveRetornarFalse() {
+        // Teste específico para branch: quantidade != null quando quantidade == null
+        CartItem item = new CartItem();
+        item.setPreco(10.0);
+        item.setQuantidade(null);
+        
+        assertFalse(validator.hasValidQuantity(item), "Quantidade nula deve retornar false");
     }
 
     // ========== Testes para isPriceNotNull ==========
@@ -182,6 +202,14 @@ class CartItemValidatorTest {
         assertTrue(validator.isPricePositive(item), "Preço positivo (" + preco + ") deve retornar true");
     }
 
+    @Test
+    void testIsPricePositive_ComPrecoExatamenteZero_DeveRetornarFalse() {
+        // Teste específico para branch: preco > 0 quando preco == 0
+        CartItem item = new CartItem(0.0, 1);
+        
+        assertFalse(validator.isPricePositive(item), "Preço zero deve retornar false");
+    }
+
     @ParameterizedTest
     @ValueSource(doubles = {-10.0, -1.0, 0.0})
     void testIsPricePositive_ComPrecoNaoPositivo_DeveRetornarFalse(double preco) {
@@ -210,6 +238,14 @@ class CartItemValidatorTest {
         CartItem item = new CartItem(10.0, quantidade);
         
         assertTrue(validator.isQuantityPositive(item), "Quantidade positiva (" + quantidade + ") deve retornar true");
+    }
+
+    @Test
+    void testIsQuantityPositive_ComQuantidadeExatamenteZero_DeveRetornarFalse() {
+        // Teste específico para branch: quantidade > 0 quando quantidade == 0
+        CartItem item = new CartItem(10.0, 0);
+        
+        assertFalse(validator.isQuantityPositive(item), "Quantidade zero deve retornar false");
     }
 
     @ParameterizedTest

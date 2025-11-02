@@ -190,11 +190,24 @@ class CartControllerTest {
     void testCalculateTotal_ComVoucherTipoDesconhecido_DeveIgnorarDesconto() {
         cartController.addItem(new CartItem(100.0, 1));
         
-        String viewName = cartController.calculateTotal("UNKNOWN_TYPE", 10.0, model);
-        
-        assertEquals("cart", viewName);
+        assertEquals("cart", cartController.calculateTotal("UNKNOWN_TYPE", 10.0, model));
         // Deve calcular sem desconto pois o tipo não é reconhecido
+        // Mas o voucher ainda é criado (branch: else do if/else if)
         verify(model).addAttribute(eq("total"), eq(100.0));
+        verify(model).addAttribute(eq("appliedVoucher"), any(Voucher.class));
+    }
+
+    @Test
+    void testCalculateTotal_ComVoucherTipoCaseSensitive_DeveIgnorarDesconto() {
+        cartController.addItem(new CartItem(100.0, 1));
+        
+        // Testa com tipos case-sensitive que não correspondem
+        assertEquals("cart", cartController.calculateTotal("percentage", 10.0, model)); // minúsculo
+        assertEquals("cart", cartController.calculateTotal("fixed_amount", 10.0, model)); // minúsculo
+        assertEquals("cart", cartController.calculateTotal("Percentage", 10.0, model)); // capitalizado
+        
+        // Todos devem criar voucher mas sem tipo definido (cobrindo o branch else)
+        verify(model, atLeast(3)).addAttribute(eq("appliedVoucher"), any(Voucher.class));
     }
 
     @Test
